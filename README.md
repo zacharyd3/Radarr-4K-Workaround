@@ -1,4 +1,4 @@
-# Radarr-Recycle-Copy
+# Radarr 4K Workaround
 
 ### This script is intended for use with Unraid and Radarr
 To properly setup this script a few things are needed:
