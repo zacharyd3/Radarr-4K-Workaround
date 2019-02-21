@@ -34,7 +34,7 @@ do
 		foundLocation=$file
 		#echo "Low-res Movie Location: "$foundLocation
 		
-#Parse movie name from filenames found ( Change the number after "F" to how many directories there are before the file and add 1. )
+#Parse movie name from filenames found ( Change the number after "F" to how many directories there are before the recycle bin and add 2. )
 		parseNameOld0=$(echo "$file" | cut -d'/' -f7) #<<Change this number
 		parseNameOld1=$(echo "$parseNameOld0" | cut -d'[' -f1)
 		parseNameOld2=${parseNameOld1::-1}
@@ -67,7 +67,7 @@ do
 			if [ "${parseNameOld2}" == "${parseNameNew2}" ]
 			then
 				echo "Pass: "$passNumber
-				echo $parseNameNew2" "$parseExt" copied"
+				echo $parseNameNew2" "$parseExt" moved."
 				let passNumber++
 				mv "${foundLocation}" "${movieFolder1}"
 				echo ""
