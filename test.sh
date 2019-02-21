@@ -15,7 +15,6 @@
 echo ""
 passNumber=1
 
-
 #Set radarr recycle bin location
 bin=/c/Users/Zach/Downloads/Recycle/
 cd $bin
@@ -23,7 +22,7 @@ cd $bin
 for file in $bin*
 do
 	echo "Pass: "$passNumber
-	#Search for 1080p movies in the folder
+	#Search for 1080p movies in the recycle bin
 	if [[ $file == *"1080p"* ]] || [[ $file == *"720p"* ]]
 	then
 		foundLocation=$file
