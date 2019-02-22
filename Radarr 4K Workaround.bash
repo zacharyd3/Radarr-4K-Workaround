@@ -18,11 +18,11 @@ echo ""
 passNumber=1
 
 #Set radarr recycle bin location
-bin=/c/Users/Zach/Downloads/Recycle/
+bin=/mnt/user/Downloads/.Recycle.Bin/
 cd $bin
 
 #Set the Movie library location
-movieFolderRoot=/c/Users/Zach/Downloads/
+movieFolderRoot=/mnt/user/Videos/Movies/
 
 #Run the next commands on each file in the recycle bin
 for file in $bin*
@@ -35,13 +35,13 @@ do
 		#echo "Low-res Movie Location: "$foundLocation
 		
 #Parse movie name from filenames found ( Change the number after "F" to how many directories there are before the recycle bin and add 2. )
-		parseNameOld0=$(echo "$file" | cut -d'/' -f7) #<<Change this number
+		parseNameOld0=$(echo "$file" | cut -d'/' -f6) #<<Change this number
 		parseNameOld1=$(echo "$parseNameOld0" | cut -d'[' -f1)
 		parseNameOld2=${parseNameOld1::-1}
 		#echo "Low-res Movie name: "$parseNameOld2
 
 #Parse file extension
-		parseExt=$(echo "$file" | cut -d'.' -f3)
+		parseExt=$(echo "$file" | cut -d'.' -f5)
 		
 #Turn the parsed movie name into a folder
 		movieFolder0=$movieFolderRoot$parseNameOld2
@@ -53,8 +53,8 @@ do
 		then
 			cd "${movieFolder1}"
 
-#Search the folder for 4K movies
-			foundNew=$(find . -maxdepth 1 -name "*2160p*")
+#Search the folder for 4K movies that are larger than 3GB (otherwise it finds too many files)
+			foundNew=$(find . -maxdepth 1 -name "*2160p*" -size +3072M)
 			#echo "Found 4K Movie: "$foundNew
 			
 #Parse movie name from 4K filenames found
