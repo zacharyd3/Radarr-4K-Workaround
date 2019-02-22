@@ -53,7 +53,7 @@ do
 		then
 			cd "${movieFolder1}"
 
-#Search the folder for 4K movies that are larger than 3GB (otherwise it finds too many files)
+#Search the folder for 4K movies
 			foundNew=$(find . -maxdepth 1 -name "*2160p*" -size +3072M)
 			#echo "Found 4K Movie: "$foundNew
 			
@@ -70,6 +70,7 @@ do
 				echo $parseNameNew2" "$parseExt" moved."
 				let passNumber++
 				mv "${foundLocation}" "${movieFolder1}"
+				/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew2 $parseExt has been copied back." -i "warning"
 				echo ""
 			fi
 		fi	
