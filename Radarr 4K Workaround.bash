@@ -54,24 +54,27 @@ do
 			cd "${movieFolder1}"
 
 #Search the folder for 4K movies
-			foundNew=$(find . -maxdepth 1 -name "*2160p*" -size +3072M)
+			foundNew=$(find . -maxdepth 1 -name "*2160p*" -size +1536M)
 			#echo "Found 4K Movie: "$foundNew
 			
-#Parse movie name from 4K filenames found
-			parseNameNew0=$(echo "$foundNew" | cut -d'[' -f1)
-			parseNameNew1=$(echo "$parseNameNew0" | cut -d'/' -f2)
-			parseNameNew2=${parseNameNew1::-1}
-			#echo "4K Movie name: "$parseNameNew2
-			#echo "['{"$parseNameOld2"}' == '{"$parseNameNew2"}' ]"
-			
-			if [ "${parseNameOld2}" == "${parseNameNew2}" ]
+#Parse movie name only if 4K filename found
+			if [[ "$foundNew" == *"2160p"* ]]
 			then
-				echo "Pass: "$passNumber
-				echo $parseNameNew2" "$parseExt" moved."
-				let passNumber++
-				mv "${foundLocation}" "${movieFolder1}"
-				/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew2 $parseExt has been copied back." -i "warning"
-				echo ""
+				parseNameNew0=$(echo "$foundNew" | cut -d'[' -f1)
+				parseNameNew1=$(echo "$parseNameNew0" | cut -d'/' -f2)
+				parseNameNew2=${parseNameNew1::-1}
+				#echo "4K Movie name: "$parseNameNew2
+				#echo "['{"$parseNameOld2"}' == '{"$parseNameNew2"}' ]"
+			
+				if [ "${parseNameOld2}" == "${parseNameNew2}" ]
+				then
+					echo "Pass: "$passNumber
+					echo $parseNameNew2" "$parseExt" moved."
+					let passNumber++
+					mv "${foundLocation}" "${movieFolder1}"
+					/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew2 $parseExt has been copied back." -i "warning"
+					echo ""
+				fi
 			fi
 		fi	
 	fi
