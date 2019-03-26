@@ -13,6 +13,9 @@
 #  Alladin [ 1993 WEBDL-1080p 5.1]  #
 #####################################
 
+#Start Debugging (set as 1 to enable)
+debug=0
+
 #Start counting the renaming passes made
 echo ""
 passNumber=1
@@ -32,22 +35,31 @@ do
 	if [[ $file == *"1080p"* ]] || [[ $file == *"720p"* ]]
 	then
 		foundLocation=$file
-		#echo "Low-res Movie Location: "$foundLocation
+		if [ $debug -eq "1" ]
+		then
+			echo "Low-res Movie Location: "$foundLocation
+		fi
 		
 #Parse movie name from filenames found ( Change the number after "F" to how many directories there are before the recycle bin and add 2. )
 		parseNameOld0=$(echo "$file" | cut -d'/' -f6) #<<Change this number
 		parseNameOld1=$(echo "$parseNameOld0" | cut -d'[' -f1)
 		parseNameOld2=${parseNameOld1::-1}
-		#echo "Low-res Movie name: "$parseNameOld2
-
+		if [ $debug -eq "1" ]
+		then
+			echo "Low-res Movie name: "$parseNameOld2
+		fi
+		
 #Parse file extension
 		parseExt=$(echo "$file" | cut -d'.' -f5)
 		
 #Turn the parsed movie name into a folder
 		movieFolder0=$movieFolderRoot$parseNameOld2
 		movieFolder1="${movieFolder0}/"
-		#echo "4K Movie folder: "$movieFolder1
-		
+		if [ $debug -eq "1" ]
+		then
+			echo "4K Movie folder: "$movieFolder1
+		fi
+
 #Test if the movie folder exists
 		if [ -d "${movieFolder1}" ]
 		then
@@ -55,25 +67,33 @@ do
 
 #Search the folder for 4K movies
 			foundNew=$(find . -maxdepth 1 -name "*2160p*" -size +1536M)
-			#echo "Found 4K Movie: "$foundNew
-			
+			if [ $debug -eq "1" ]
+			then
+				echo "Found 4K Movie: "$foundNew
+			fi
+
 #Parse movie name only if 4K filename found
 			if [[ "$foundNew" == *"2160p"* ]]
 			then
 				parseNameNew0=$(echo "$foundNew" | cut -d'[' -f1)
 				parseNameNew1=$(echo "$parseNameNew0" | cut -d'/' -f2)
 				parseNameNew2=${parseNameNew1::-1}
-				#echo "4K Movie name: "$parseNameNew2
-				#echo "['{"$parseNameOld2"}' == '{"$parseNameNew2"}' ]"
-			
+				if [ $debug -eq "1" ]
+				then
+					echo "4K Movie name: "$parseNameNew2
+				fi
+
 				if [ "${parseNameOld2}" == "${parseNameNew2}" ]
 				then
-					echo "Pass: "$passNumber
-					echo $parseNameNew2" "$parseExt" moved."
-					let passNumber++
-					mv "${foundLocation}" "${movieFolder1}"
-					/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew2 $parseExt has been copied back." -i "warning"
-					echo ""
+					if [ "${parseExt}" != "nfo" ]
+					then
+						echo "Pass: "$passNumber
+						echo $parseNameNew2" "$parseExt" moved."
+						let passNumber++
+						mv "${foundLocation}" "${movieFolder1}"
+						/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew2 $parseExt has been copied back." -i "warning"
+						echo ""
+					fi
 				fi
 			fi
 		fi	
