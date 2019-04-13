@@ -4,6 +4,10 @@
 #       Created by: zacharyd3       #
 #                                   #
 #####################################
+#                                   #
+#            Depreciated            #
+#                                   #
+#####################################
 #   The echo lines can be disabled  #
 #   they're mainly for debugging    # 
 #     if movies aren't copied.      #
