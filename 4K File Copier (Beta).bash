@@ -244,7 +244,7 @@ do
 	
 #####################################
 #                                   #
-#         Backwards Movie Sorter           #
+#         Backwards Movie Sorter    #
 #                                   #
 #####################################
 #Start Debugging (set as 1 to enable)
@@ -339,7 +339,7 @@ done
 		
 #####################################
 #                                   #
-#          Backwards TV Show Sorter           #
+#          Backwards TV Show Sorter #
 #                                   #
 #####################################
 #Start Debugging (set as 1 to enable)
