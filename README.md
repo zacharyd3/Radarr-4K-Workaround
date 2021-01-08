@@ -4,8 +4,8 @@
 To properly setup this script a few things are needed:
 * The [recycle bin](https://imgur.com/a/V573c6n) to be enabled in Radarr
 * Your 4K profile must also include 1080p copies
-* The userscripts plugin for Unraid
-* Your movies need to be sorted into their own folder /Movie Name/
+* The [userscripts plugin](https://forums.unraid.net/topic/48286-plugin-ca-user-scripts/) for Unraid
+* Your movies need to be sorted into their own folder i.e [Movies Directory/Movie Name/]
 * **The naming scheme of your movies needs to be "Aladin [ 1992 WEBDL-1080p 10bit 5.1].mkv"**
 * It's not absolutely needed, but the Recycle Bin plugin for Unraid would also be benefical.
 
