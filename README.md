@@ -13,7 +13,7 @@ To properly setup this script a few things are needed:
 ~~## Install Instructions
 First off, download or copy the script to a new userscript script. There are 3 variables/entries you'll need to change in the script to suit your situation.~~
 
-~~1. On line 21, change "bin" to the location of your recycle bin folder you have setup in Radarr. ~~
+~~1. On line 21, change "bin" to the location of your recycle bin folder you have setup in Radarr.~~
 
 ~~2. Edit line 25 to change "movieFolderRoot" to be the location you store your movies (i.e /mnt/user/Videos/Movies/)~~
 
