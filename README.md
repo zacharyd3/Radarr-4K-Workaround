@@ -2,7 +2,7 @@
 
 ### This script is intended for use with Unraid and Radarr
 To properly setup this script a few things are needed:
-* The recycle bin to be enabled in Radarr
+* The [recycle bin](https://imgur.com/a/V573c6n) to be enabled in Radarr
 * Your 4K profile must also include 1080p copies
 * The userscripts plugin for Unraid
 * Your movies need to be sorted into their own folder /Movie Name/
