@@ -10,7 +10,7 @@
 #Start Debugging (set as 1 to enable basic info, 2 enables all steps to show and 3 shows all steps and comparison info)
 debug=0
 #Enable testing mode to simulate the move without actually moving any files (0 = moves files, 1 = Test)
-testing=1
+testing=0
 
 #If testing is enabled, automatically switch to debug mode 2
 if [[ $testing -eq 1 && $debug -le 2 ]]
@@ -18,35 +18,6 @@ then
 	debug=2
 	echo "<font color='blue'><b>Testing is enabled, enabling advanced debugging.</b></font>"
 fi
-
-#Ensures the recycle bin is setup properly
-echo "<hr>"
-echo "<font color='blue'><b>Recycle Bin scan started!</b></font>"
-echo ""
-echo "<hr>"
-
-#Checks if the movies recycle bin exists
-if [[ ! -d "/mnt/user/Downloads/.Recycle.Bin/Movies/" ]]
-then
-	echo "<font color='orange'><b>Movie bin not found!</b></font>"
-	#Creates missing directory
-	mkdir "/mnt/user/Downloads/.Recycle.Bin/Movies/"
-	echo "<font color='green'><b>Directory created.</b></font>"
-	else
-	echo "<font color='green'><b>Movie bin already exists.</b></font>"
-fi
-
-#Checks if the tv show recycle bin exists
-if [[ ! -d "/mnt/user/Downloads/.Recycle.Bin/TV/" ]]
-then
-	echo "<font color='orange'><b>TV Show bin not found!</b></font>"
-	#Creates missing directory
-	mkdir "/mnt/user/Downloads/.Recycle.Bin/TV/"
-	echo "<font color='green'><b>Directory created.</b></font>"
-else
-	echo "<font color='green'><b>TV Show bin already exists.</b></font>"
-fi
-echo ""
 
 #Start counting the renaming passes made
 passNumber=1
@@ -58,6 +29,35 @@ binTV=/mnt/user/Downloads/.Recycle.Bin/TV/
 #Set the library locations
 movieFolderRoot=/mnt/user/Videos/Movies/
 tvFolderRoot=/mnt/user/Videos/TV/
+
+#Ensures the recycle bin is setup properly
+echo "<hr>"
+echo "<font color='blue'><b>Recycle Bin scan started!</b></font>"
+echo ""
+echo "<hr>"
+
+#Checks if the movies recycle bin exists
+if [[ ! -d "${binMovie}" ]]
+then
+	echo "<font color='orange'><b>Movie bin not found!</b></font>"
+	#Creates missing directory
+	mkdir "${binMovie}"
+	echo "<font color='green'><b>Directory created.</b></font>"
+	else
+	echo "<font color='green'><b>Movie bin already exists.</b></font>"
+fi
+
+#Checks if the tv show recycle bin exists
+if [[ ! -d "${binTV}" ]]
+then
+	echo "<font color='orange'><b>TV Show bin not found!</b></font>"
+	#Creates missing directory
+	mkdir "${binTV}"
+	echo "<font color='green'><b>Directory created.</b></font>"
+else
+	echo "<font color='green'><b>TV Show bin already exists.</b></font>"
+fi
+echo ""
 
 #####################################
 #
@@ -570,7 +570,7 @@ fi
 
 #####################################
 #
-#     Remove Empty Directories
+#          Remove Empty Directories
 #
 #####################################
 
