@@ -6,8 +6,8 @@ To properly setup this script a few things are needed:
 * Your 4K profile must also include 1080p copies
 * The [userscripts plugin](https://forums.unraid.net/topic/48286-plugin-ca-user-scripts/) for Unraid
 * Your movies need to be sorted into their own folder i.e [Movies Directory/Movie Name/]
-* **The naming scheme of your movies needs to be "Aladin [ 1992 WEBDL-1080p 10bit 5.1].mkv"**
-* It's not absolutely needed, but the Recycle Bin plugin for Unraid would also be benefical.
+* **The naming scheme of your movies needs to be "{Movie CleanTitle} [({Release Year}) {Edition Tags} {Quality Title}{ MediaInfo 3D}{ MediaInfo VideoDynamicRange} {Mediainfo VideoBitDepth}bit{ Mediainfo VideoCodec}{ Mediainfo AudioCodec}{ Mediainfo AudioChannels}] [imdb-{ImdbId}]"**
+* It's not absolutely needed, but the [Recycle Bin](https://forums.unraid.net/topic/41044-recycle-bin-vfs-recycle-for-64-and-later-versions/) plugin for Unraid would also be benefical.
 
 
 ~~## Install Instructions
