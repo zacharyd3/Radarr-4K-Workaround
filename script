@@ -13,8 +13,7 @@ debug=1
 testing=0
 
 #If testing is enabled, automatically switch to debug mode 2
-if [[ $testing -eq 1 && $debug -le 2 ]]
-then
+if [[ $testing -eq 1 && $debug -le 2 ]]; then
 	debug=2
 	echo "<font color='blue'><b>Testing is enabled, enabling advanced debugging.</b></font>"
 fi
@@ -37,10 +36,9 @@ echo ""
 echo "<hr>"
 
 #Checks if the movies recycle bin exists
-if [[ ! -d "${binMovie}" ]]
-then
+if [[ ! -d "${binMovie}" ]]; then
 	echo "<font color='orange'><b>Movie bin not found!</b></font>"
-	#Creates missing directory
+#Creates missing directory
 	mkdir "${binMovie}"
 	echo "<font color='green'><b>Directory created.</b></font>"
 	else
@@ -48,10 +46,9 @@ then
 fi
 
 #Checks if the tv show recycle bin exists
-if [[ ! -d "${binTV}" ]]
-then
+if [[ ! -d "${binTV}" ]]; then
 	echo "<font color='orange'><b>TV Show bin not found!</b></font>"
-	#Creates missing directory
+#Creates missing directory
 	mkdir "${binTV}"
 	echo "<font color='green'><b>Directory created.</b></font>"
 else
@@ -77,27 +74,22 @@ echo "<hr>"
 for file in $binMovie*
 do
 #Start checking Movies.
-	if [ -d "${file}" ]
-	then
+	if [ -d "${file}" ]; then
 		directory=$file/
 		for movieFile in "${directory}"*
 		do
-			if [ -f "${movieFile}" ]
-			then
+			if [ -f "${movieFile}" ]; then
 #Parse movie name from filenames found ( Change the number after "F" to how many directories there are before the recycle bin and add 2. )
 				parseNameOld0=$(echo "$movieFile" | cut -d'/' -f8) #<<Change this number
 				parseNameOld1=$(echo "$parseNameOld0" | cut -d'(' -f1)
 				parseNameOld2=${parseNameOld1::-2}
 				parseNameOld2=$(echo $parseNameOld2 | xargs) #xargs removes leading and trailing whitespace.
-				if [ $debug -ge "1" ]
-				then
+				if [ $debug -ge "1" ]; then
 					echo "<font color='green'><b>Original Movie name: </b></font>"$parseNameOld2
 				fi
 #Check if the recycled file is 1080p.
-				if [[ $movieFile != *"1080p"* ]]
-				then
-					if [ $debug -ge "1" ]
-					then
+				if [[ $movieFile != *"1080p"* ]]; then
+					if [ $debug -ge "1" ]; then
 						echo "<font color='orange'><b>The file is not 1080p, skipping.</b></font>"
 						echo ""
 						break
@@ -119,49 +111,38 @@ do
 #Turn the parsed movie name into a folder
 				movieFolder0=$movieFolderRoot$parseNameOld2
 				movieFolder1="${movieFolder0}/"
-				if [ $debug -ge "2" ]
-				then
+				if [ $debug -ge "2" ]; then
 					echo "<font color='green'><b>Searching for 4K Movie folder: </b></font>"$movieFolder1
 				fi
 #Test if the movie folder exists
-				if [ -d "${movieFolder1}" ]
-				then
+				if [ -d "${movieFolder1}" ]; then
 					cd "${movieFolder1}"
 #Search the folder for 4K movies
 					foundNew=$(find . -maxdepth 1 -name "*2160p*" -size +1536M)
-					if [[ "$foundNew" != "" ]]
-					then
-						if [ $debug -ge "1" ]
-						then
+					if [[ "$foundNew" != "" ]]; then
+						if [ $debug -ge "1" ]; then
 							echo "<font color='green'><b>Found matching 4K Movie: </b></font>"$foundNew
 						fi
 					fi
-					if [[ "$foundNew" = "" ]]
-					then
+					if [[ "$foundNew" = "" ]]; then
 						echo "<font color='orange'><b>No matching 4K file found, skipping.</b></font>"
 					fi
 #Parse movie name only if 4K filename found
-					if [[ "$foundNew" == *"2160p"* ]]
-					then
+					if [[ "$foundNew" == *"2160p"* ]]; then
 						parseNameNew0=$(echo "$foundNew" | cut -d'[' -f1)
 						parseNameNew1=$(echo "$parseNameNew0" | cut -d'/' -f2)
 						parseNameNew2=${parseNameNew1}
 						parseNameNew2=$(echo $parseNameNew2 | xargs) #xargs removes leading and trailing whitespace
-						if [ $debug -ge "2" ]
-						then
+						if [ $debug -ge "2" ]; then
 							echo "<font color='red'><b>Name Comparison:</b></font> |" $parseNameOld2 "|" $parseNameNew2 "|"
 						fi
-							if [ "${parseNameOld2}" == "${parseNameNew2}" ]
-							then
-								if [ "${parseExt}" != "nfo" ]
-								then
-									if [ $debug -ge "2" ] && [ $inUse -eq "0" ]
-									then
+							if [ "${parseNameOld2}" == "${parseNameNew2}" ]; then
+								if [ "${parseExt}" != "nfo" ]; then
+									if [ $debug -ge "2" ] && [ $inUse -eq "0" ]; then
 										echo "<font color='red'><b>Files Checked: </b></font>"$passNumber
 									fi
 									let passNumber++
-									if [ $testing -eq "0" ]
-									then
+									if [ $testing -eq "0" ]; then
 										mv "${movieFile}" "${movieFolder1}"
 									fi
 									/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew2 $parseExt has been copied back." -i "normal"
@@ -171,18 +152,15 @@ do
 							fi
 						fi
 					fi
-					if [ $debug -ge "1" ]
-					then
+					if [ $debug -ge "1" ]; then
 						echo ""
 					fi
 				fi
-				
 		done
 	fi
 done
 
-if [[ passNumber -eq "1" ]]
-then
+if [[ passNumber -eq "1" ]]; then
 echo "No files to process"
 echo ""
 echo ""
@@ -207,27 +185,22 @@ echo "<hr>"
 for file in $binMovie*
 do
 #Start checking Movies.
-	if [ -d "${file}" ]
-	then
+	if [ -d "${file}" ]; then
 		directory=$file/
 		for movieFile in "${directory}"*
 		do
-			if [ -f "${movieFile}" ]
-			then
+			if [ -f "${movieFile}" ]; then
 #Parse movie name from filenames found ( Change the number after "F" to how many directories there are before the recycle bin and add 2. )
 				parseNameOld0=$(echo "$movieFile" | cut -d'/' -f8) #<<Change this number
 				parseNameOld1=$(echo "$parseNameOld0" | cut -d'(' -f1)
 				parseNameOld2=${parseNameOld1::-2}
 				parseNameOld2=$(echo $parseNameOld2 | xargs) #xargs removes leading and trailing whitespace.
-				if [ $debug -ge "1" ]
-				then
+				if [ $debug -ge "1" ]; then
 					echo "<font color='green'><b>Original Movie name: </b></font>"$parseNameOld2
 				fi
 #Check if the recycled file is 4K.
-				if [[ $movieFile != *"2160p"* ]]
-				then
-					if [ $debug -ge "1" ]
-					then
+				if [[ $movieFile != *"2160p"* ]]; then
+					if [ $debug -ge "1" ]; then
 						echo "<font color='orange'><b>The file is not 4K, skipping.</b></font>"
 						echo ""
 						break
@@ -249,49 +222,38 @@ do
 #Turn the parsed movie name into a folder
 				movieFolder0=$movieFolderRoot$parseNameOld2
 				movieFolder1="${movieFolder0}/"
-				if [ $debug -ge "1" ]
-				then
+				if [ $debug -ge "1" ]; then
 					echo "<font color='green'><b>Searching for Low-res Movie folder: </b></font>"$movieFolder1
 				fi
 #Test if the movie folder exists
-				if [ -d "${movieFolder1}" ]
-				then
+				if [ -d "${movieFolder1}" ]; then
 					cd "${movieFolder1}"
 #Search the folder for Low-res movies
 					foundNew=$(find . -maxdepth 1 -name "*1080p*" -size +1536M)
-					if [[ "$foundNew" != "" ]]
-					then
-						if [ $debug -ge "1" ]
-						then
+					if [[ "$foundNew" != "" ]]; then
+						if [ $debug -ge "1" ]; then
 							echo "<font color='green'><b>Found matching Low-res Movie: </b></font>"$foundNew
 						fi
 					fi
-					if [[ "$foundNew" = "" ]]
-					then
+					if [[ "$foundNew" = "" ]]; then
 						echo "<font color='orange'><b>No matching Low-res file found, skipping.</b></font>"
 					fi
 #Parse movie name only if Low-res filename found
-				if [[ "$foundNew" == *"1080p"* ]]
-				then
+				if [[ "$foundNew" == *"1080p"* ]]; then
 					parseNameNew0=$(echo "$foundNew" | cut -d'[' -f1)
 					parseNameNew1=$(echo "$parseNameNew0" | cut -d'/' -f2)
 					parseNameNew2=${parseNameNew1}
 					parseNameNew2=$(echo $parseNameNew2 | xargs) #xargs removes leading and trailing whitespace
-					if [ $debug -ge "2" ]
-					then
+					if [ $debug -ge "2" ]; then
 						echo "<font color='red'><b>Name Comparison:</b></font> |" $parseNameOld2 "|" $parseNameNew2 "|"
 					fi
-						if [ "${parseNameOld2}" == "${parseNameNew2}" ]
-						then
-							if [ "${parseExt}" != "nfo" ]
-							then
-								if [ $debug -ge "2" ] && [ $inUse -eq "0" ]
-								then
+						if [ "${parseNameOld2}" == "${parseNameNew2}" ]; then
+							if [ "${parseExt}" != "nfo" ]; then
+								if [ $debug -ge "2" ] && [ $inUse -eq "0" ]; then
 									echo "<font color='red'><b>Files Checked: </b></font>"$passNumber
 								fi
 								let passNumber++
-								if [ $testing -eq "0" ]
-								then
+								if [ $testing -eq "0" ]; then
 									mv "${movieFile}" "${movieFolder1}"
 								fi
 								/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew2 $parseExt has been copied back." -i "normal"
@@ -301,8 +263,7 @@ do
 						fi
 					fi
 				fi
-				if [ $debug -ge "1" ]
-				then
+				if [ $debug -ge "1" ]; then
 					echo ""
 				fi
 			fi
@@ -310,8 +271,7 @@ do
 	fi
 done
 
-if [[ passNumber -eq "1" ]]
-then
+if [[ passNumber -eq "1" ]]; then
 echo "No files to process"
 echo ""
 echo ""
