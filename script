@@ -8,7 +8,7 @@
 
 
 #Start Debugging (set as 1 to enable basic info, 2 enables all steps to show and 3 shows all steps and comparison info)
-debug=0
+debug=1
 #Enable testing mode to simulate the move without actually moving any files (0 = moves files, 1 = Test)
 testing=0
 
@@ -119,7 +119,7 @@ do
 #Turn the parsed movie name into a folder
 				movieFolder0=$movieFolderRoot$parseNameOld2
 				movieFolder1="${movieFolder0}/"
-				if [ $debug -ge "1" ]
+				if [ $debug -ge "2" ]
 				then
 					echo "<font color='green'><b>Searching for 4K Movie folder: </b></font>"$movieFolder1
 				fi
@@ -136,42 +136,47 @@ do
 							echo "<font color='green'><b>Found matching 4K Movie: </b></font>"$foundNew
 						fi
 					fi
-#Parse movie name only if 4K filename found
-				if [[ "$foundNew" == *"2160p"* ]]
-				then
-					parseNameNew0=$(echo "$foundNew" | cut -d'[' -f1)
-					parseNameNew1=$(echo "$parseNameNew0" | cut -d'/' -f2)
-					parseNameNew2=${parseNameNew1}
-					parseNameNew2=$(echo $parseNameNew2 | xargs) #xargs removes leading and trailing whitespace
-					if [ $debug -ge "2" ]
+					if [[ "$foundNew" = "" ]]
 					then
-						echo "<font color='red'><b>Name Comparison:</b></font> |" $parseNameOld2 "|" $parseNameNew2 "|"
+						echo "<font color='orange'><b>No matching 4K file found, skipping.</b></font>"
 					fi
-						if [ "${parseNameOld2}" == "${parseNameNew2}" ]
+#Parse movie name only if 4K filename found
+					if [[ "$foundNew" == *"2160p"* ]]
+					then
+						parseNameNew0=$(echo "$foundNew" | cut -d'[' -f1)
+						parseNameNew1=$(echo "$parseNameNew0" | cut -d'/' -f2)
+						parseNameNew2=${parseNameNew1}
+						parseNameNew2=$(echo $parseNameNew2 | xargs) #xargs removes leading and trailing whitespace
+						if [ $debug -ge "2" ]
 						then
-							if [ "${parseExt}" != "nfo" ]
+							echo "<font color='red'><b>Name Comparison:</b></font> |" $parseNameOld2 "|" $parseNameNew2 "|"
+						fi
+							if [ "${parseNameOld2}" == "${parseNameNew2}" ]
 							then
-								if [ $debug -ge "2" ] && [ $inUse -eq "0" ]
+								if [ "${parseExt}" != "nfo" ]
 								then
-									echo "<font color='red'><b>Files Checked: </b></font>"$passNumber
+									if [ $debug -ge "2" ] && [ $inUse -eq "0" ]
+									then
+										echo "<font color='red'><b>Files Checked: </b></font>"$passNumber
+									fi
+									let passNumber++
+									if [ $testing -eq "0" ]
+									then
+										mv "${movieFile}" "${movieFolder1}"
+									fi
+									/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew2 $parseExt has been copied back." -i "normal"
+									echo "<font color='green'><b>"$parseNameNew2" "$parseExt" moved.</b></font>"
+									echo ""
 								fi
-								let passNumber++
-								if [ $testing -eq "0" ]
-								then
-									mv "${movieFile}" "${movieFolder1}"
-								fi
-								/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew2 $parseExt has been copied back." -i "normal"
-								echo "<font color='green'><b>"$parseNameNew2" "$parseExt" moved.</b></font>"
-								echo ""
 							fi
 						fi
 					fi
+					if [ $debug -ge "1" ]
+					then
+						echo ""
+					fi
 				fi
-				if [ $debug -ge "1" ]
-				then
-					echo ""
-				fi
-			fi
+				
 		done
 	fi
 done
@@ -261,6 +266,10 @@ do
 							echo "<font color='green'><b>Found matching Low-res Movie: </b></font>"$foundNew
 						fi
 					fi
+					if [[ "$foundNew" = "" ]]
+					then
+						echo "<font color='orange'><b>No matching Low-res file found, skipping.</b></font>"
+					fi
 #Parse movie name only if Low-res filename found
 				if [[ "$foundNew" == *"1080p"* ]]
 				then
@@ -314,10 +323,10 @@ fi
 #
 #####################################
 
-passNumber=1
-inUse=0
-cCheck=0
-folderCheck=0
+passNumber=1 #Counts how many files have been checked
+inUse=0 #Saves if the file is in use and cancels
+rCheck=0 #Set to 0 if it's ok to continue, 1 if it should end. (stands for Resolution Check)
+vCheck=0 #Set to 0 if it's ok to continue, 1 if it skip the current file. (stands for Video Check)
 
 echo "<hr>"
 echo "<font color='blue'><b>Copying Low-res TV Show's back.</b></font>"
@@ -327,103 +336,93 @@ echo "<hr>"
 for file in $binTV*
 do
 #Start checking TV shows.
-	if [ -d "${file}" ]
-	then
+	if [ "$(ls -A "$file")" ]; then
 		directory=$file/
 		for tvSeason in "${directory}"*/*
 		do
-			if [ -f "${tvSeason}" ]
-			then
+			if [ -f "${tvSeason}" ]; then
+				if [ $debug -ge "2" ]; then
+					echo "<font color='green'><b>Full name: </b></font>"$tvSeason
+				fi
 #Parse the show name, episode and season
+				parseNameOld0=$(echo "$tvSeason" | cut -d'/' -f9)
+				parseNameOld0=$(echo "$parseNameOld0" | cut -d'[' -f1)
 				tvShowName=$(echo "$tvSeason" | cut -d'/' -f7)
 				tvShowSeason=$(echo "$tvSeason" | cut -d'/' -f8)
 				tvShowEpisode0=$(echo "$tvSeason" | cut -d'/' -f9)
 				tvShowEpisode1=$(echo "$tvShowEpisode0" | cut -d'-' -f1)
-				if [ $debug -ge "1" ]
-				then
+				if [ $debug -ge "1" ]; then
 					echo "<font color='green'><b>Show name: </b></font>"$tvShowName
 					echo "<font color='green'><b>Show episode: </b></font>"$tvShowEpisode1
 				fi
-#Ensure the recycled file is 1080p
-				if [[ $tvSeason == *"1080p"* ]]
-				then
-					let cCheck=1
-					let folderCheck=0
+#Check if the file is a video
+				if [[ $tvSeason == *"mkv" ]]; then
+					let vCheck=0 #Resets the Video Check for a new file
+					let rCheck=0 #Resets the Continue Check for a new file
+				else 
+					echo "<font color='orange'><b>File isn't a video, skipping</b></font>"
+					echo ""
+					let vCheck=1					
 				fi
-#Check if the recycled file isn't 1080p.
-				if [[ $tvSeason != *"1080p"* ]]
-				then
-					if [ $debug -ge "1" ]
-					then
+#Ensure the recycled file is 1080p
+				if [[ $tvSeason == *"1080p"* && $vCheck -eq 0 ]]; then
+					let rCheck=0
+				else
+					if [[ $debug -ge "1" && $vCheck -eq "0" ]]; then
 						echo "<font color='orange'><b>The file is not 1080p, skipping.</b></font>"
 						echo ""
+						let rCheck=1
 					fi
-					let cCheck=0
-				else
-					let cCheck=1
+				fi
 #Check if the file is in use.
-					if lsof "$tvSeason" > /dev/null; then
-						echo "<font color='orange'><b>File is in use, skipping.</b></font>"
-						echo ""
-						inUse=1
-						break
-					else
-						inUse=0
-					fi
+				if lsof "$tvSeason" > /dev/null; then
+					echo "<font color='orange'><b>File is in use, skipping.</b></font>"
+					echo ""
+					inUse=1
+				else
+					inUse=0
 				fi
 #Parse the folder and Extension
 				tvShowOriginal=$tvFolderRoot$tvShowName/$tvShowSeason/
 				tvShowExtension=$(echo "$tvSeason" | cut -d'.' -f5)
 #Check to see if the file matches a show
-				if [[ -d $tvShowOriginal ]]
-				then
-					if [[ $debug -ge "1"  && cCheck -ge "1" ]]
-					then
-						echo "<font color='green'><b>Searching for 4K show folder: </b></font>"$tvShowOriginal
+				if [ -d "${tvShowOriginal}" ]; then
+					cd "${tvShowOriginal}"
+#Search the folder for 4K shows
+					if [[ $debug -ge "2" && $rCheck -eq "0" && $vCheck -eq "0" ]]; then
+						echo "<font color='green'><b>Searching for: </b></font>${tvShowEpisode1}*2160p*.mkv"
 					fi
-#Scan the files in the show folder for a matching 4K file
-					for original in "${tvShowOriginal}"*
-					do
-						if [[ $original == *$tvShowEpisode1*"2160p"*$tvShowExtension ]] || [[ $original == *$tvShowEpisode1*"2160p"*".mp4" ]] || [[ $original == *$tvShowEpisode1*"2160p"*".avi" ]] || [[ $original == *$tvShowEpisode1*"2160p"*".mkv" ]] || [[ $original == *$tvShowEpisode1*"2160p"*".jpg" ]]
-						then
-							if [[ $debug -ge "1" && $cCheck -ge "1"  && $folderCheck -lt "1" ]]
-							then
-								echo "<font color='green'><b>Found matching 4K show: </b></font>"$original
-							fi
-#Copy the matching file back
-							if [ -f "${tvSeason}" ]
-							then
-								if [[ $inUse -eq "0"  && $cCheck -ge "1" && $folderCheck -lt "1" ]]
-								then
-									if [ $debug -ge "2" ]
-									then
-										echo "<font color='red'><b>Files Checked: </b></font>"$passNumber
-									fi
-									if [ $testing -eq "0" ]
-									then
-										mv "${tvSeason}" "${tvShowOriginal}"
-									fi
-									let passNumber++
-									let folderCheck++
-									/usr/local/emhttp/webGui/scripts/notify -e "4K Copier" -s "Copy Notifcation" -d "$tvShowName $tvShowEpisode1 $tvShowExtension has been copied back." -i "normal"
-									if [ $folderCheck -eq "1" ]
-									then
-										if [ $debug -ge "2" ]
-										then
-											echo "<font color='red'><b>cCheck: </b></font>"$cCheck
-										fi
-										echo "<font color='green'><b>"$tvShowName" "$tvShowEpisode1" "$tvShowExtension" moved.</b></font>"
-										echo ""
-										let folderCheck++
-									fi
-								fi
-							fi
+					foundNew=$(find . -maxdepth 2 -name "${tvShowEpisode1}*2160p*.mkv")
+					if [[ "$foundNew" != "" &&  $rCheck -eq "0" && $vCheck -eq "0" ]]; then
+						if [ $debug -ge "1" ]; then
+							echo "<font color='green'><b>Found matching 4K Show: </b></font>"$foundNew
 						fi
-					done
-				fi
-				if [ $debug -ge "2" ]
-				then
-					echo ""
+					fi
+					if [[ "$foundNew" = "" &&  $rCheck -eq "0" && $vCheck -eq "0" ]]; then
+						echo "<font color='orange'><b>No matching 4K file found, skipping.</b></font>"
+						echo ""
+					fi	
+#Parse movie name only if 4K filename found
+					if [[ "$foundNew" == *"2160p"* &&  "$rCheck" = 0 && $vCheck -eq "0" ]]; then
+						parseNameNew0=$(echo "$foundNew" | cut -d'[' -f1)
+						parseNameNew1=$(echo "$parseNameNew0" | cut -d'/' -f2)
+						parseNameNew2=${parseNameNew1}
+						if [ $debug -ge "2" ]; then
+							echo "<font color='red'><b>Name Comparison:</b></font> |" $parseNameOld0 "|" $parseNameNew2 "|"
+						fi
+						if [ "${parseNameOld0}" == "${parseNameNew2}" ]; then
+							if [ $debug -ge "2" ] && [ $inUse -eq "0" ]; then
+								echo "<font color='red'><b>Files Checked: </b></font>"$passNumber
+							fi
+							let passNumber++
+							if [ $testing -eq "0" ]; then
+								mv "${tvSeason}" "${tvShowOriginal}"
+							fi
+							/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew2 $parseExt has been copied back." -i "normal"
+							echo "<font color='green'><b>"$tvShowName" "$tvShowEpisode1" "$tvShowExtension" moved.</b></font>"
+							echo ""
+						fi
+					fi
 				fi
 			fi
 		done
@@ -443,62 +442,62 @@ fi
 #
 #####################################
 
-passNumber=1
-inUse=0
-cCheck=0
-folderCheck=0
+passNumber=1 #Counts how many files have been checked
+inUse=0 #Saves if the file is in use and cancels
+rCheck=0 #Set to 0 if it's ok to continue, 1 if it should end. (stands for Resolution Check)
+vCheck=0 #Set to 0 if it's ok to continue, 1 if it skip the current file. (stands for Video Check)
 
 echo "<hr>"
-echo "<font color='blue'><b>Copying 4K TV Shows back.</b></font>"
+echo "<font color='blue'><b>Copying 4K TV Show's back.</b></font>"
 echo ""
 echo "<hr>"
 
 for file in $binTV*
 do
 #Start checking TV shows.
-	if [ -d "${file}" ]
-	then
+	if [ "$(ls -A "$file")" ]; then
 		directory=$file/
 		for tvSeason in "${directory}"*/*
 		do
-			if [ -f "${tvSeason}" ]
-			then
+			if [ -f "${tvSeason}" ]; then
+				if [ $debug -ge "2" ]; then
+					echo "<font color='green'><b>Full name: </b></font>"$tvSeason
+				fi
 #Parse the show name, episode and season
+				parseNameOld0=$(echo "$tvSeason" | cut -d'/' -f9)
+				parseNameOld0=$(echo "$parseNameOld0" | cut -d'[' -f1)
 				tvShowName=$(echo "$tvSeason" | cut -d'/' -f7)
 				tvShowSeason=$(echo "$tvSeason" | cut -d'/' -f8)
 				tvShowEpisode0=$(echo "$tvSeason" | cut -d'/' -f9)
 				tvShowEpisode1=$(echo "$tvShowEpisode0" | cut -d'-' -f1)
-				if [ $debug -ge "1" ]
-				then
+				if [ $debug -ge "1" ]; then
 					echo "<font color='green'><b>Show name: </b></font>"$tvShowName
 					echo "<font color='green'><b>Show episode: </b></font>"$tvShowEpisode1
 				fi
-#Ensure the recycled file is 2160p
-				if [[ $tvSeason == *"2160p"* ]]
-				then
-					let cCheck=1
-					let folderCheck=0
-				else
-					let cCheck=0
+#Check if the file is a video
+				if [[ $tvSeason == *"mkv" ]]; then
+					let vCheck=0 #Resets the Video Check for a new file
+					let rCheck=0 #Resets the Continue Check for a new file
+				else 
+					echo "<font color='orange'><b>File isn't a video, skipping</b></font>"
+					echo ""
+					let vCheck=1					
 				fi
-#Check if the recycled file isn't 4K.
-				if [[ $tvSeason != *"2160p"* ]]
-				then
-					if [ $debug -ge "1" ]
-					then
+#Ensure the recycled file is 4K
+				if [[ $tvSeason == *"2160p"* && $vCheck -eq 0 ]]; then
+					let rCheck=0
+				else
+					if [[ $debug -ge "1" && $vCheck -eq "0" ]]; then
 						echo "<font color='orange'><b>The file is not 4K, skipping.</b></font>"
 						echo ""
+						let rCheck=1
 					fi
-					let cCheck=0
-				else
-					let cCheck=1
 				fi
 #Check if the file is in use.
 				if lsof "$tvSeason" > /dev/null; then
 					echo "<font color='orange'><b>File is in use, skipping.</b></font>"
 					echo ""
 					inUse=1
-					break
 				else
 					inUse=0
 				fi
@@ -506,55 +505,43 @@ do
 				tvShowOriginal=$tvFolderRoot$tvShowName/$tvShowSeason/
 				tvShowExtension=$(echo "$tvSeason" | cut -d'.' -f5)
 #Check to see if the file matches a show
-				if [[ -d $tvShowOriginal ]]
-				then
-					if [[ $debug -ge "1"  && cCheck -ge "1" ]]
-					then
-						echo "<font color='green'><b>Searching for 1080p show folder: </b></font>"$tvShowOriginal
+				if [ -d "${tvShowOriginal}" ]; then
+					cd "${tvShowOriginal}"
+#Search the new folder for Low-res shows
+					if [[ $debug -ge "2" && $rCheck -eq "0" && $vCheck -eq "0" ]]; then
+						echo "<font color='green'><b>Searching for: </b></font>${tvShowEpisode1}*1080p*.mkv"
 					fi
-#Scan the files in the show folder for a matching Low-res file
-					for original in "${tvShowOriginal}"*
-					do
-						if [[ $original == *$tvShowEpisode1*"1080p"*$tvShowExtension || $original == *$tvShowEpisode1*"1080p"*".mp4" || $original == *$tvShowEpisode1*"1080p"*".avi" || $original == *$tvShowEpisode1*"1080p"*".mkv" || $original == *$tvShowEpisode1*"1080p"*".jpg" || $original == *$tvShowEpisode1*"720p"*$tvShowExtension || $original == *$tvShowEpisode1*"720p"*".mp4" || $original == *$tvShowEpisode1*"720p"*".avi" || $original == *$tvShowEpisode1*"720p"*".mkv" || $original == *$tvShowEpisode1*"720p"*".jpg" ]]
-						then
-							if [[ $debug -ge "1" && $cCheck -ge "1"  && $folderCheck -lt "1" ]]
-							then
-								echo "<font color='green'><b>Found matching 1080p show: </b></font>"$original
-							fi
-#Copy the matching file back
-							if [ -f "${tvSeason}" ]
-							then
-								if [[ $inUse -eq "0"  && $cCheck -ge "1" && $folderCheck -lt "1" ]]
-								then
-									if [ $debug -ge "2" ]
-									then
-										echo "<font color='red'><b>Files Checked: </b></font>"$passNumber
-									fi
-									if [ $testing -eq "0" ]
-									then
-										mv "${tvSeason}" "${tvShowOriginal}"
-									fi
-									let passNumber++
-									let folderCheck++
-									/usr/local/emhttp/webGui/scripts/notify -e "4K Copier" -s "Copy Notifcation" -d "$tvShowName $tvShowEpisode1 $tvShowExtension has been copied back." -i "normal"
-									if [ $folderCheck -eq "1" ]
-									then
-										if [ $debug -ge "2" ]
-										then
-											echo "<font color='red'><b>cCheck: </b></font>"$cCheck
-										fi
-										echo "<font color='green'><b>"$tvShowName" "$tvShowEpisode1" "$tvShowExtension" moved.</b></font>"
-										echo ""
-										let folderCheck++
-									fi
-								fi
-							fi
+					foundNew=$(find . -maxdepth 2 -name "${tvShowEpisode1}*1080p*.mkv")
+					if [[ "$foundNew" != "" &&  $rCheck -eq "0" && $vCheck -eq "0" ]]; then
+						if [ $debug -ge "1" ]; then
+							echo "<font color='green'><b>Found matching Low-res Show: </b></font>"$foundNew
 						fi
-					done
-				fi
-				if [ $debug -ge "2" ]
-				then
-					echo ""
+					fi
+					if [[ "$foundNew" = "" &&  $rCheck -eq "0" && $vCheck -eq "0" ]]; then
+						echo "<font color='orange'><b>No matching Low-res file found, skipping.</b></font>"
+						echo ""
+					fi	
+#Parse movie name only if 1080p filename found
+					if [[ "$foundNew" == *"1080p"* &&  "$rCheck" = 0 && $vCheck -eq "0" ]]; then
+						parseNameNew0=$(echo "$foundNew" | cut -d'[' -f1)
+						parseNameNew1=$(echo "$parseNameNew0" | cut -d'/' -f2)
+						parseNameNew2=${parseNameNew1}
+						if [ $debug -ge "2" ]; then
+							echo "<font color='red'><b>Name Comparison:</b></font> |" $parseNameOld0 "|" $parseNameNew2 "|"
+						fi
+						if [ "${parseNameOld0}" == "${parseNameNew2}" ]; then
+							if [ $debug -ge "2" ] && [ $inUse -eq "0" ]; then
+								echo "<font color='red'><b>Files Checked: </b></font>"$passNumber
+							fi
+							let passNumber++
+							if [ $testing -eq "0" ]; then
+								mv "${tvSeason}" "${tvShowOriginal}"
+							fi
+							/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew2 $parseExt has been copied back." -i "normal"
+							echo "<font color='green'><b>"$tvShowName" "$tvShowEpisode1" "$tvShowExtension" moved.</b></font>"
+							echo ""
+						fi
+					fi
 				fi
 			fi
 		done
