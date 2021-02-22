@@ -14,7 +14,7 @@
 #Start Debugging (set as 1 to enable basic info, 2 shows all steps and comparison info)
 debug=1
 #Enable testing mode to simulate the move without actually moving any files (0 = moves files, 1 = Test)
-testing=1
+testing=0
 #Start counting the renaming passes made
 passNumber=1
 #Set the recycle bin locations
@@ -99,8 +99,16 @@ do
 				if [ $debug -ge "1" ]; then
 					echo "<font color='green'><b>Original Movie name: </b></font>""$parseNameOld0"
 				fi
+#Check if the recycled file is in use.
+				if lsof "$movieFile" > /dev/null; then
+					echo "<font color='orange'><b>The file is in use, skipping.</b></font>"
+					echo ""
+					inUse=1
+				else
+					inUse=0
+				fi
 #Check if the recycled file is a video
-				if [[ $movieFile == *"mkv" ]]; then
+				if [[ $movieFile == *"mkv" && "$inUse" -eq 0 ]]; then
 					((vCheck=0)) #Resets the Video Check for a new file
 				else 
 					if [ $debug -ge "1" ]; then
@@ -110,7 +118,7 @@ do
 					((vCheck=1))					
 				fi
 #Check if the recycled file is 1080p.
-				if [[ $movieFile != *"1080p"* && "$vCheck" -eq "0" ]]; then
+				if [[ $movieFile != *"1080p"* && "$vCheck" -eq "0" && "$inUse" -eq 0 ]]; then
 					if [ $debug -ge "1" ]; then
 						echo "<font color='orange'><b>The file is not 1080p, skipping.</b></font>"
 						echo ""
@@ -118,14 +126,6 @@ do
 					((rCheck=1))
 				else
 					((rCheck=0))
-				fi
-#Check if the recycled file is in use.
-				if lsof "$movieFile" > /dev/null; then
-					echo "<font color='orange'><b>The file is in use, skipping.</b></font>"
-					echo ""
-					inUse=1
-				else
-					inUse=0
 				fi
 #Turn the parsed movie name into a folder
 				movieFolder0=$movieFolderRoot$parseNameOld0
@@ -218,8 +218,16 @@ do
 				if [ $debug -ge "1" ]; then
 					echo "<font color='green'><b>Original Movie name: </b></font>""$parseNameOld0"
 				fi
+#Check if the recycled file is in use.
+				if lsof "$movieFile" > /dev/null; then
+					echo "<font color='orange'><b>The file is in use, skipping.</b></font>"
+					echo ""
+					inUse=1
+				else
+					inUse=0
+				fi
 #Check if the recycled file is a video
-				if [[ $movieFile == *"mkv" ]]; then
+				if [[ $movieFile == *"mkv" && "$inUse" -eq 0 ]]; then
 					((vCheck=0)) #Resets the Video Check for a new file
 				else 
 					if [ $debug -ge "1" ]; then
@@ -229,7 +237,7 @@ do
 					((vCheck=1))					
 				fi
 #Check if the recycled file is 4K.
-				if [[ $movieFile != *"2160p"* && "$vCheck" -eq "0" ]]; then
+				if [[ $movieFile != *"2160p"* && "$vCheck" -eq "0" && "$inUse" -eq 0 ]]; then
 					if [ $debug -ge "1" ]; then
 						echo "<font color='orange'><b>The file is not 4K, skipping.</b></font>"
 						echo ""
@@ -237,14 +245,6 @@ do
 					((rCheck=1))
 				else
 					((rCheck=0))
-				fi
-#Check if the recycled file is in use.
-				if lsof "$movieFile" > /dev/null; then
-					echo "<font color='orange'><b>The file is in use, skipping.</b></font>"
-					echo ""
-					inUse=1
-				else
-					inUse=0
 				fi
 #Turn the parsed movie name into a folder
 				movieFolder0=$movieFolderRoot$parseNameOld0
@@ -338,8 +338,16 @@ do
 					echo "<font color='green'><b>Show name: </b></font>""$tvShowName"
 					echo "<font color='green'><b>Show episode: </b></font>""$tvShowEpisode1"
 				fi
+#Check if the file is in use.
+				if lsof "$tvSeason" > /dev/null; then
+					echo "<font color='orange'><b>File is in use, skipping.</b></font>"
+					echo ""
+					inUse=1
+				else
+					inUse=0
+				fi
 #Check if the file is a video
-				if [[ $tvSeason == *"mkv" ]]; then
+				if [[ $tvSeason == *"mkv" && "$inUse" -eq 0 ]]; then
 					((vCheck=0)) #Resets the Video Check for a new file
 					((rCheck=0)) #Resets the Continue Check for a new file
 				else 
@@ -350,7 +358,7 @@ do
 					((vCheck=1))					
 				fi
 #Ensure the recycled file is 1080p
-				if [[ $tvSeason == *"1080p"* && $vCheck -eq 0 ]]; then
+				if [[ $tvSeason == *"1080p"* && $vCheck -eq 0 && "$inUse" -eq 0 ]]; then
 				        ((rCheck=0))
 				else
 					if [[ $debug -ge "1" && $vCheck -eq "0" ]]; then
@@ -358,14 +366,6 @@ do
 						echo ""
 					fi
 				((rCheck=1))
-				fi
-#Check if the file is in use.
-				if lsof "$tvSeason" > /dev/null; then
-					echo "<font color='orange'><b>File is in use, skipping.</b></font>"
-					echo ""
-					inUse=1
-				else
-					inUse=0
 				fi
 #Parse the folder and Extension
 				tvShowOriginal=$tvFolderRoot$tvShowName/$tvShowSeason/
@@ -457,8 +457,16 @@ do
 					echo "<font color='green'><b>Show name: </b></font>""$tvShowName"
 					echo "<font color='green'><b>Show episode: </b></font>""$tvShowEpisode1"
 				fi
+#Check if the file is in use.
+				if lsof "$tvSeason" > /dev/null; then
+					echo "<font color='orange'><b>File is in use, skipping.</b></font>"
+					echo ""
+					inUse=1
+				else
+					inUse=0
+				fi
 #Check if the file is a video
-				if [[ $tvSeason == *"mkv" ]]; then
+				if [[ $tvSeason == *"mkv" && "$inUse" -eq 0 ]]; then
 					((vCheck=0)) #Resets the Video Check for a new file
 					((rCheck=0)) #Resets the Continue Check for a new file
 				else 
@@ -469,7 +477,7 @@ do
 					((vCheck=1))					
 				fi
 #Ensure the recycled file is 4K
-				if [[ $tvSeason == *"2160p"* && $vCheck -eq 0 ]]; then
+				if [[ $tvSeason == *"2160p"* && $vCheck -eq 0 && "$inUse" -eq 0 ]]; then
 					((rCheck=0))
 				else
 					if [[ $debug -ge "1" && $vCheck -eq "0" ]]; then
@@ -477,14 +485,6 @@ do
 						echo ""
 					fi
 					((rCheck=1))
-				fi
-#Check if the file is in use.
-				if lsof "$tvSeason" > /dev/null; then
-					echo "<font color='orange'><b>File is in use, skipping.</b></font>"
-					echo ""
-					inUse=1
-				else
-					inUse=0
 				fi
 #Parse the folder and Extension
 				tvShowOriginal=$tvFolderRoot$tvShowName/$tvShowSeason/
