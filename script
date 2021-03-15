@@ -12,7 +12,7 @@
 
 
 #Start Debugging (set as 1 to enable basic info, 2 shows all steps and comparison info)
-debug=1
+debug=0
 #Enable testing mode to simulate the move without actually moving any files (0 = moves files, 1 = Test)
 testing=0
 #Start counting the renaming passes made
@@ -92,12 +92,14 @@ do
 				if [ $debug -ge "2" ]; then
 					echo "<font color='green'><b>Original File name: </b></font>""$movieFile"
 				fi
-				parseNameOld0=$(echo "$movieFile" | cut -d'/' -f8) #<<Change this number
+				parseNameOld0=$(echo "$movieFile" | cut -d'/' -f7) #<<Change this number
 				parseNameOld0=$(echo "$parseNameOld0" | cut -d'[' -f1)
+				parseNameOld1=$(echo "$parseNameOld0" | cut -d'(' -f1) #Saves the original Movie name too (if the folder has a year it breaks things so this is needed)
 				parseNameOld0=$(echo "$parseNameOld0" | xargs) #xargs removes leading and trailing whitespace.
+				parseNameOld1=$(echo "$parseNameOld1" | xargs) #xargs removes leading and trailing whitespace.
 				parseExt=$(echo "$movieFile" | cut -d'.' -f5)
 				if [ $debug -ge "1" ]; then
-					echo "<font color='green'><b>Original Movie name: </b></font>""$parseNameOld0"
+					echo "<font color='green'><b>Original Movie name: </b></font>""$parseNameOld1"
 				fi
 #Check if the recycled file is in use.
 				if lsof "$movieFile" > /dev/null; then
@@ -108,10 +110,10 @@ do
 					inUse=0
 				fi
 #Check if the recycled file is a video
-				if [[ $movieFile == *"mkv" && "$inUse" -eq 0 ]]; then
+				if [[ $movieFile == *"mkv" ]]; then
 					((vCheck=0)) #Resets the Video Check for a new file
 				else 
-					if [ $debug -ge "1" ]; then
+					if [[ $debug -ge "1" && "$inUse" -eq 0 ]]; then
 						echo "<font color='orange'><b>File isn't a video, skipping</b></font>"
 						echo ""
 					fi
@@ -153,9 +155,9 @@ do
 					parseNameNew0=$(echo "$parseNameNew0" | cut -d'/' -f2)
 					parseNameNew0=$(echo "$parseNameNew0" | xargs) #xargs removes leading and trailing whitespace
 					if [ $debug -ge "2" ]; then
-						echo "<font color='red'><b>Name Comparison:</b></font> |" "$parseNameOld0" "|" "$parseNameNew0" "|"
+						echo "<font color='red'><b>Name Comparison:</b></font> |" "$parseNameOld1" "|" "$parseNameNew0" "|"
 					fi
-						if [ "${parseNameOld0}" == "${parseNameNew0}" ]; then
+						if [ "${parseNameOld1}" == "${parseNameNew0}" ]; then
 							if [ "${parseExt}" != "nfo" ]; then
 								if [ $debug -ge "2" ] && [ $inUse -eq "0" ]; then
 									echo "<font color='red'><b>Files Checked: </b></font>"$passNumber
@@ -165,7 +167,7 @@ do
 									mv "${movieFile}" "${movieFolder1}"
 									/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew0 $parseExt has been copied back." -i "normal"
 								fi
-								echo "<font color='green'><b>""$parseNameNew0"" ""$parseExt"" moved.</b></font>"
+								echo "<font color='blue'><b>""$parseNameNew0"" ""$parseExt"" moved.</b></font>"
 								echo ""
 							fi
 						fi
@@ -211,12 +213,14 @@ do
 				if [ $debug -ge "2" ]; then
 					echo "<font color='green'><b>Original File name: </b></font>""$movieFile"
 				fi
-				parseNameOld0=$(echo "$movieFile" | cut -d'/' -f8) #<<Change this number
+				parseNameOld0=$(echo "$movieFile" | cut -d'/' -f7) #<<Change this number
 				parseNameOld0=$(echo "$parseNameOld0" | cut -d'[' -f1)
+				parseNameOld1=$(echo "$parseNameOld0" | cut -d'(' -f1) #Saves the original Movie name too (if the folder has a year it breaks things so this is needed)
 				parseNameOld0=$(echo "$parseNameOld0" | xargs) #xargs removes leading and trailing whitespace.
+				parseNameOld1=$(echo "$parseNameOld1" | xargs) #xargs removes leading and trailing whitespace.
 				parseExt=$(echo "$movieFile" | cut -d'.' -f5)
 				if [ $debug -ge "1" ]; then
-					echo "<font color='green'><b>Original Movie name: </b></font>""$parseNameOld0"
+					echo "<font color='green'><b>Original Movie name: </b></font>""$parseNameOld1"
 				fi
 #Check if the recycled file is in use.
 				if lsof "$movieFile" > /dev/null; then
@@ -227,10 +231,10 @@ do
 					inUse=0
 				fi
 #Check if the recycled file is a video
-				if [[ $movieFile == *"mkv" && "$inUse" -eq 0 ]]; then
+				if [[ $movieFile == *"mkv" ]]; then
 					((vCheck=0)) #Resets the Video Check for a new file
 				else 
-					if [ $debug -ge "1" ]; then
+					if [[ $debug -ge "1" && "$inUse" -eq 0 ]]; then
 						echo "<font color='orange'><b>File isn't a video, skipping</b></font>"
 						echo ""
 					fi
@@ -272,9 +276,9 @@ do
 					parseNameNew0=$(echo "$parseNameNew0" | cut -d'/' -f2)
 					parseNameNew0=$(echo "$parseNameNew0" | xargs) #xargs removes leading and trailing whitespace
 					if [ $debug -ge "2" ]; then
-						echo "<font color='red'><b>Name Comparison:</b></font> |" "$parseNameOld0" "|" "$parseNameNew0" "|"
+						echo "<font color='red'><b>Name Comparison:</b></font> |" "$parseNameOld1" "|" "$parseNameNew0" "|"
 					fi
-						if [ "${parseNameOld0}" == "${parseNameNew0}" ]; then
+						if [ "${parseNameOld1}" == "${parseNameNew0}" ]; then
 							if [ "${parseExt}" != "nfo" ]; then
 								if [ $debug -ge "2" ] && [ $inUse -eq "0" ]; then
 									echo "<font color='red'><b>Files Checked: </b></font>"$passNumber
@@ -284,7 +288,7 @@ do
 									mv "${movieFile}" "${movieFolder1}"
 									/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew0 $parseExt has been copied back." -i "normal"
 								fi
-								echo "<font color='green'><b>""$parseNameNew0"" ""$parseExt"" moved.</b></font>"
+								echo "<font color='blue'><b>""$parseNameNew0"" ""$parseExt"" moved.</b></font>"
 								echo ""
 							fi
 						fi
@@ -347,11 +351,11 @@ do
 					inUse=0
 				fi
 #Check if the file is a video
-				if [[ $tvSeason == *"mkv" && "$inUse" -eq 0 ]]; then
+				if [[ $tvSeason == *"mkv" ]]; then
 					((vCheck=0)) #Resets the Video Check for a new file
 					((rCheck=0)) #Resets the Continue Check for a new file
 				else 
-					if [[ $debug -ge "1" ]]; then
+					if [[ $debug -ge "1" && "$inUse" -eq 0 ]]; then
 						echo "<font color='orange'><b>File isn't a video, skipping</b></font>"
 						echo ""
 					fi
@@ -403,7 +407,7 @@ do
 								mv "${tvSeason}" "${tvShowOriginal}"
 								/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew0 $parseExt has been copied back." -i "normal"
 							fi
-							echo "<font color='green'><b>""$tvShowName"" ""$tvShowEpisode1"" ""$tvShowExtension"" moved.</b></font>"
+							echo "<font color='blue'><b>""$tvShowName"" ""$tvShowEpisode1"" ""$tvShowExtension"" moved.</b></font>"
 							echo ""
 						fi
 					fi
@@ -466,11 +470,11 @@ do
 					inUse=0
 				fi
 #Check if the file is a video
-				if [[ $tvSeason == *"mkv" && "$inUse" -eq 0 ]]; then
+				if [[ $tvSeason == *"mkv" ]]; then
 					((vCheck=0)) #Resets the Video Check for a new file
 					((rCheck=0)) #Resets the Continue Check for a new file
 				else 
-					if [[ $debug -ge "1" ]]; then
+					if [[ $debug -ge "1" && "$inUse" -eq 0 ]]; then
 						echo "<font color='orange'><b>File isn't a video, skipping</b></font>"
 						echo ""
 					fi
@@ -522,7 +526,7 @@ do
 								mv "${tvSeason}" "${tvShowOriginal}"
 								/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew0 $parseExt has been copied back." -i "normal"
 							fi
-							echo "<font color='green'><b>""$tvShowName"" ""$tvShowEpisode1"" ""$tvShowExtension"" moved.</b></font>"
+							echo "<font color='blue'><b>""$tvShowName"" ""$tvShowEpisode1"" ""$tvShowExtension"" moved.</b></font>"
 							echo ""
 						fi
 					fi
