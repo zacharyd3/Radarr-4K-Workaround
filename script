@@ -139,7 +139,7 @@ do
 				if [ -d "${movieFolder1}" ]; then
 					cd "${movieFolder1}" || exit
 #Search the movie folder for a 4K copy 
-					foundNew=$(find . -maxdepth 1 -name "*2160p*" -size +1536M)
+					foundNew=$(find . -maxdepth 1 -name "*2160p*" -size +1536M -print -quit)
 					if [[ "$foundNew" != "" && "$vCheck" -eq "0" && "$rCheck" -eq "0" && "$inUse" -eq "0" ]]; then
 						if [ $debug -ge "1" ]; then
 							echo "<font color='green'><b>Found matching 4K Movie: </b></font>""$foundNew"
@@ -260,7 +260,7 @@ do
 				if [ -d "${movieFolder1}" ]; then
 					cd "${movieFolder1}" || exit
 #Search the movie folder for a 1080p copy 
-					foundNew=$(find . -maxdepth 1 -name "*1080p*" -size +1536M)
+					foundNew=$(find . -maxdepth 1 -name "*1080p*" -size +1536M -print -quit)
 					if [[ "$foundNew" != "" && "$vCheck" -eq "0" && "$rCheck" -eq "0" && "$inUse" -eq "0" ]]; then
 						if [ $debug -ge "1" ]; then
 							echo "<font color='green'><b>Found matching Low-res Movie: </b></font>""$foundNew"
@@ -381,7 +381,7 @@ do
 					if [[ $debug -ge "2" && $rCheck -eq "0" && $vCheck -eq "0" ]]; then
 						echo "<font color='green'><b>Searching for: </b></font>${tvShowEpisode1}*2160p*.mkv"
 					fi
-					foundNew=$(find . -maxdepth 2 -name "${tvShowEpisode1}*2160p*.mkv")
+					foundNew=$(find . -maxdepth 2 -name "${tvShowEpisode1}*2160p*.mkv" -print -quit)
 					if [[ "$foundNew" != "" &&  $rCheck -eq "0" && $vCheck -eq "0" ]]; then
 						if [ $debug -ge "1" ]; then
 							echo "<font color='green'><b>Found matching 4K Show: </b></font>""$foundNew"
@@ -391,8 +391,8 @@ do
 						echo "<font color='orange'><b>No matching 4K file found, skipping.</b></font>"
 						echo ""
 					fi	
-#Parse movie name only if 4K filename found
-					if [[ "$foundNew" == *"2160p"* &&  "$rCheck" = 0 && $vCheck -eq "0" ]]; then
+#Parse show name only if 4K filename found
+					if [[ "$foundNew" == *"2160p"* &&  $rCheck -eq "0" && $vCheck -eq "0" ]]; then
 						parseNameNew0=$(echo "$foundNew" | cut -d'[' -f1)
 						parseNameNew0=$(echo "$parseNameNew0" | cut -d'/' -f2)
 						if [ $debug -ge "2" ]; then
@@ -500,7 +500,7 @@ do
 					if [[ $debug -ge "2" && $rCheck -eq "0" && $vCheck -eq "0" ]]; then
 						echo "<font color='green'><b>Searching for: </b></font>${tvShowEpisode1}*1080p*.mkv"
 					fi
-					foundNew=$(find . -maxdepth 2 -name "${tvShowEpisode1}*1080p*.mkv")
+					foundNew=$(find . -maxdepth 2 -name "${tvShowEpisode1}*1080p*.mkv" -print -quit)
 					if [[ "$foundNew" != "" &&  $rCheck -eq "0" && $vCheck -eq "0" ]]; then
 						if [ $debug -ge "1" ]; then
 							echo "<font color='green'><b>Found matching Low-res Show: </b></font>""$foundNew"
