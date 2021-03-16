@@ -14,10 +14,11 @@
 #Start Debugging (set as 1 to enable basic info, 2 shows all steps and comparison info)
 debug=0
 #Enable testing mode to simulate the move without actually moving any files (0 = moves files, 1 = Test)
-testing=0
+testing=1
 #Start counting the renaming passes made
 passNumber=1
 #Set the recycle bin locations
+binLocation=/mnt/user/Downloads/.Recycle.Bin/
 binMovie=/mnt/user/Downloads/.Recycle.Bin/Movies/
 binTV=/mnt/user/Downloads/.Recycle.Bin/TV/
 #Set the library locations
@@ -64,6 +65,25 @@ echo ""
 
 #####################################
 #
+# 	Unneeded File Remover
+#
+#####################################
+
+#Checks that the Recycle Bin is setup
+if [[ -d "${binLocation}" && "$testing" -eq 0 ]]; then
+	cd "${binLocation}"
+#Finds all "extra" files and deletes them before moving any videos.
+	find . -name "*.nfo" -type f -delete
+	find . -name "*.srt" -type f -delete
+	find . -name "*.ass" -type f -delete
+	find . -name "*.jpg" -type f -delete
+	if [ $debug -ge "2" ]; then
+		echo "<font color='green'><b>Removed extra files (subtitles, images, info). </b></font>"
+	fi
+fi
+
+#####################################
+#
 # 	Low-res Movie Sorter
 #
 #####################################
@@ -105,12 +125,12 @@ do
 				if lsof "$movieFile" > /dev/null; then
 					echo "<font color='orange'><b>The file is in use, skipping.</b></font>"
 					echo ""
-					inUse=1
+					((inUse=1))
 				else
-					inUse=0
+					((inUse=0))
 				fi
 #Check if the recycled file is a video
-				if [[ $movieFile == *"mkv" ]]; then
+				if [[ $movieFile == *"mkv" || *"m2ts" || *"mp4" ]]; then
 					((vCheck=0)) #Resets the Video Check for a new file
 				else 
 					if [[ $debug -ge "1" && "$inUse" -eq 0 ]]; then
@@ -136,10 +156,13 @@ do
 					echo "<font color='green'><b>Searching for 4K Movie folder: </b></font>""$movieFolder1"
 				fi
 #Test if the movie folder exists
-				if [ -d "${movieFolder1}" ]; then
+				if [[ -d "${movieFolder1}" && "$vCheck" -eq "0" && "$rCheck" -eq "0" && "$inUse" -eq "0" ]]; then
+					if [ $debug -ge "1" ]; then
+						echo "<font color='green'><b>Found matching 4K Movie Folder.</b></font>"
+					fi
 					cd "${movieFolder1}" || exit
 #Search the movie folder for a 4K copy 
-					foundNew=$(find . -maxdepth 1 -name "*2160p*" -size +1536M -print -quit)
+					foundNew=$(find ./ -type f \( -iname \*2160p*.mkv -o -iname \*2160p*.m2ts -o -iname \*2160p*.mp4 \) -maxdepth 1 -print -quit)
 					if [[ "$foundNew" != "" && "$vCheck" -eq "0" && "$rCheck" -eq "0" && "$inUse" -eq "0" ]]; then
 						if [ $debug -ge "1" ]; then
 							echo "<font color='green'><b>Found matching 4K Movie: </b></font>""$foundNew"
@@ -157,6 +180,10 @@ do
 					if [ $debug -ge "2" ]; then
 						echo "<font color='red'><b>Name Comparison:</b></font> |" "$parseNameOld1" "|" "$parseNameNew0" "|"
 					fi
+						if [[ "${parseNameOld1}" != "${parseNameNew0}" && $debug -ge "2" && $inUse -eq "0" ]]; then
+							echo "<font color='red'><b>No match found. </b></font>"
+							echo ""
+						fi
 						if [ "${parseNameOld1}" == "${parseNameNew0}" ]; then
 							if [ "${parseExt}" != "nfo" ]; then
 								if [ $debug -ge "2" ] && [ $inUse -eq "0" ]; then
@@ -214,7 +241,7 @@ do
 					echo "<font color='green'><b>Original File name: </b></font>""$movieFile"
 				fi
 				parseNameOld0=$(echo "$movieFile" | cut -d'/' -f7) #<<Change this number
-				parseNameOld0=$(echo "$parseNameOld0" | cut -d'[' -f1)
+				parseNameOld0=$(echo "$parseNameOld0" | cut -d'[' -f1)echo "$parseNameOld0"
 				parseNameOld1=$(echo "$parseNameOld0" | cut -d'(' -f1) #Saves the original Movie name too (if the folder has a year it breaks things so this is needed)
 				parseNameOld0=$(echo "$parseNameOld0" | xargs) #xargs removes leading and trailing whitespace.
 				parseNameOld1=$(echo "$parseNameOld1" | xargs) #xargs removes leading and trailing whitespace.
@@ -226,12 +253,12 @@ do
 				if lsof "$movieFile" > /dev/null; then
 					echo "<font color='orange'><b>The file is in use, skipping.</b></font>"
 					echo ""
-					inUse=1
+					((inUse=1))
 				else
-					inUse=0
+					((inUse=0))
 				fi
 #Check if the recycled file is a video
-				if [[ $movieFile == *"mkv" ]]; then
+				if [[ $movieFile == *"mkv" || *"m2ts" || *"mp4" ]]; then
 					((vCheck=0)) #Resets the Video Check for a new file
 				else 
 					if [[ $debug -ge "1" && "$inUse" -eq 0 ]]; then
@@ -257,10 +284,13 @@ do
 					echo "<font color='green'><b>Searching for Low-res Movie folder: </b></font>""$movieFolder1"
 				fi
 #Test if the movie folder exists
-				if [ -d "${movieFolder1}" ]; then
-					cd "${movieFolder1}" || exit
+				if [[ -d "${movieFolder1}" && "$vCheck" -eq "0" && "$rCheck" -eq "0" && "$inUse" -eq "0" ]]; then
+					if [ $debug -ge "1" ]; then
+						echo "<font color='green'><b>Found matching Low-res Movie Folder.</b></font>"
+					fi
+					cd "${movieFolder1}"
 #Search the movie folder for a 1080p copy 
-					foundNew=$(find . -maxdepth 1 -name "*1080p*" -size +1536M -print -quit)
+					foundNew=$(find ./ -type f \( -iname \*1080p*.mkv -o -iname \*1080p*.m2ts -o -iname \*1080p*.mp4 \) -maxdepth 1 -print -quit)
 					if [[ "$foundNew" != "" && "$vCheck" -eq "0" && "$rCheck" -eq "0" && "$inUse" -eq "0" ]]; then
 						if [ $debug -ge "1" ]; then
 							echo "<font color='green'><b>Found matching Low-res Movie: </b></font>""$foundNew"
@@ -278,6 +308,11 @@ do
 					if [ $debug -ge "2" ]; then
 						echo "<font color='red'><b>Name Comparison:</b></font> |" "$parseNameOld1" "|" "$parseNameNew0" "|"
 					fi
+						if [[ "${parseNameOld1}" != "${parseNameNew0}" && $debug -ge "2" && $inUse -eq "0" ]]; then
+							echo "<font color='red'><b>No match found. </b></font>"
+							echo ""
+						fi
+						
 						if [ "${parseNameOld1}" == "${parseNameNew0}" ]; then
 							if [ "${parseExt}" != "nfo" ]; then
 								if [ $debug -ge "2" ] && [ $inUse -eq "0" ]; then
@@ -351,7 +386,7 @@ do
 					inUse=0
 				fi
 #Check if the file is a video
-				if [[ $tvSeason == *"mkv" ]]; then
+				if [[ $tvSeason == *"mkv" || *"m2ts" ]]; then
 					((vCheck=0)) #Resets the Video Check for a new file
 					((rCheck=0)) #Resets the Continue Check for a new file
 				else 
@@ -379,9 +414,9 @@ do
 					cd "${tvShowOriginal}" || exit
 #Search the folder for 4K shows
 					if [[ $debug -ge "2" && $rCheck -eq "0" && $vCheck -eq "0" ]]; then
-						echo "<font color='green'><b>Searching for: </b></font>${tvShowEpisode1}*2160p*.mkv"
+						echo "<font color='green'><b>Searching for: </b></font>${tvShowEpisode1}*2160p*"
 					fi
-					foundNew=$(find . -maxdepth 2 -name "${tvShowEpisode1}*2160p*.mkv" -print -quit)
+					foundNew=$(find ./ -type f \( -iname \${tvShowEpisode1}*2160p*.mkv -o -iname \${tvShowEpisode1}*2160p*.m2ts -o -iname \${tvShowEpisode1}*2160p*.mp4 \) -maxdepth 1 -print -quit)
 					if [[ "$foundNew" != "" &&  $rCheck -eq "0" && $vCheck -eq "0" ]]; then
 						if [ $debug -ge "1" ]; then
 							echo "<font color='green'><b>Found matching 4K Show: </b></font>""$foundNew"
@@ -470,7 +505,7 @@ do
 					inUse=0
 				fi
 #Check if the file is a video
-				if [[ $tvSeason == *"mkv" ]]; then
+				if [[ $tvSeason == *"mkv" || *"m2ts" ]]; then
 					((vCheck=0)) #Resets the Video Check for a new file
 					((rCheck=0)) #Resets the Continue Check for a new file
 				else 
@@ -498,9 +533,9 @@ do
 					cd "${tvShowOriginal}" || exit
 #Search the new folder for Low-res shows
 					if [[ $debug -ge "2" && $rCheck -eq "0" && $vCheck -eq "0" ]]; then
-						echo "<font color='green'><b>Searching for: </b></font>${tvShowEpisode1}*1080p*.mkv"
+						echo "<font color='green'><b>Searching for: </b></font>${tvShowEpisode1}*1080p*"
 					fi
-					foundNew=$(find . -maxdepth 2 -name "${tvShowEpisode1}*1080p*.mkv" -print -quit)
+					foundNew=$(find ./ -type f \( -iname \${tvShowEpisode1}*1080p*.mkv -o -iname \${tvShowEpisode1}*1080p*.m2ts -o -iname \${tvShowEpisode1}*1080p*.mp4 \) -maxdepth 1 -print -quit)
 					if [[ "$foundNew" != "" &&  $rCheck -eq "0" && $vCheck -eq "0" ]]; then
 						if [ $debug -ge "1" ]; then
 							echo "<font color='green'><b>Found matching Low-res Show: </b></font>""$foundNew"
@@ -511,7 +546,7 @@ do
 						echo ""
 					fi	
 #Parse movie name only if 1080p filename found
-					if [[ "$foundNew" == *"1080p"* &&  "$rCheck" = 0 && $vCheck -eq "0" ]]; then
+					if [[ "$foundNew" == *"1080p"* &&  $rCheck -eq "0" && $vCheck -eq "0" ]]; then
 						parseNameNew0=$(echo "$foundNew" | cut -d'[' -f1)
 						parseNameNew0=$(echo "$parseNameNew0" | cut -d'/' -f2)
 						if [ $debug -ge "2" ]; then
