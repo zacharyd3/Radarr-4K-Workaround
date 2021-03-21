@@ -12,9 +12,9 @@
 
 
 #Start Debugging (set as 1 to enable basic info, 2 shows all steps and comparison info)
-debug=0
+debug=1
 #Enable testing mode to simulate the move without actually moving any files (0 = moves files, 1 = Test)
-testing=1
+testing=0
 #Start counting the renaming passes made
 passNumber=1
 #Set the recycle bin locations
@@ -24,6 +24,9 @@ binTV=/mnt/user/Downloads/.Recycle.Bin/TV/
 #Set the library locations
 movieFolderRoot=/mnt/user/Videos/Movies/
 tvFolderRoot=/mnt/user/Videos/TV/
+#Set Date and Time variables
+currentDate=$(date +'%m/%d/%Y')
+currentTime=$(date +'%H:%M')
 
 #If testing is enabled, automatically switch to debug mode 2
 if [[ $testing -eq 1 && $debug -le 2 ]]; then
@@ -193,6 +196,7 @@ do
 								if [ $testing -eq "0" ]; then
 									mv "${movieFile}" "${movieFolder1}"
 									/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew0 $parseExt has been copied back." -i "normal"
+									echo "$currentDate,$currentTime,Movies,1080p,$parseNameNew0," >> "/mnt/user/Storage/Google Drive/Server Files/4K_Copier_History.csv"
 								fi
 								echo "<font color='blue'><b>""$parseNameNew0"" ""$parseExt"" moved.</b></font>"
 								echo ""
@@ -322,6 +326,7 @@ do
 								if [ $testing -eq "0" ]; then
 									mv "${movieFile}" "${movieFolder1}"
 									/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew0 $parseExt has been copied back." -i "normal"
+									echo "$currentDate,$currentTime,Movies,4K,$parseNameNew0," >> "/mnt/user/Storage/Google Drive/Server Files/4K_Copier_History.csv"
 								fi
 								echo "<font color='blue'><b>""$parseNameNew0"" ""$parseExt"" moved.</b></font>"
 								echo ""
@@ -358,7 +363,7 @@ echo "<hr>"
 for file in "$binTV"*
 do
 #Start checking TV shows.
-	if [ "$(ls -A "$file")" ]; then
+	#if [ "$(ls -A "$file")" ]; then
 		directory=$file/
 		for tvSeason in "${directory}"*/*
 		do
@@ -441,6 +446,7 @@ do
 							if [ $testing -eq "0" ]; then
 								mv "${tvSeason}" "${tvShowOriginal}"
 								/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew0 $parseExt has been copied back." -i "normal"
+								echo "$currentDate,$currentTime,Movies,1080p,$tvShowName,$tvShowEpisode1" >> "/mnt/user/Storage/Google Drive/Server Files/4K_Copier_History.csv"
 							fi
 							echo "<font color='blue'><b>""$tvShowName"" ""$tvShowEpisode1"" ""$tvShowExtension"" moved.</b></font>"
 							echo ""
@@ -449,7 +455,7 @@ do
 				fi
 			fi
 		done
-	fi
+	#fi
 done
 
 if [[ $passNumber -eq "1" ]]; then
@@ -477,7 +483,7 @@ echo "<hr>"
 for file in "$binTV"*
 do
 #Start checking TV shows.
-	if [ "$(ls -A "$file")" ]; then
+	#if [ "$(ls -A "$file")" ]; then
 		directory=$file/
 		for tvSeason in "${directory}"*/*
 		do
@@ -560,6 +566,7 @@ do
 							if [ $testing -eq "0" ]; then
 								mv "${tvSeason}" "${tvShowOriginal}"
 								/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew0 $parseExt has been copied back." -i "normal"
+								echo "$currentDate,$currentTime,Movies,4K,$tvShowName,$tvShowEpisode1" >> "/mnt/user/Storage/Google Drive/Server Files/4K_Copier_History.csv"								
 							fi
 							echo "<font color='blue'><b>""$tvShowName"" ""$tvShowEpisode1"" ""$tvShowExtension"" moved.</b></font>"
 							echo ""
@@ -568,7 +575,7 @@ do
 				fi
 			fi
 		done
-	fi
+	#fi
 done
 
 if [[ $passNumber -eq "1" ]]; then
