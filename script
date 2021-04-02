@@ -446,7 +446,7 @@ do
 							if [ $testing -eq "0" ]; then
 								mv "${tvSeason}" "${tvShowOriginal}"
 								/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew0 $parseExt has been copied back." -i "normal"
-								echo "$currentDate,$currentTime,Movies,1080p,$tvShowName,$tvShowEpisode1" >> "/mnt/user/Storage/Google Drive/Server Files/4K_Copier_History.csv"
+								echo "$currentDate,$currentTime,TV Shows,1080p,$tvShowName: $tvShowEpisode1" >> "/mnt/user/Storage/Google Drive/Server Files/4K_Copier_History.csv"
 							fi
 							echo "<font color='blue'><b>""$tvShowName"" ""$tvShowEpisode1"" ""$tvShowExtension"" moved.</b></font>"
 							echo ""
@@ -551,7 +551,7 @@ do
 						echo "<font color='orange'><b>No matching Low-res file found, skipping.</b></font>"
 						echo ""
 					fi	
-#Parse movie name only if 1080p filename found
+#Parse name only if 1080p filename found
 					if [[ "$foundNew" == *"1080p"* &&  $rCheck -eq "0" && $vCheck -eq "0" ]]; then
 						parseNameNew0=$(echo "$foundNew" | cut -d'[' -f1)
 						parseNameNew0=$(echo "$parseNameNew0" | cut -d'/' -f2)
@@ -566,7 +566,7 @@ do
 							if [ $testing -eq "0" ]; then
 								mv "${tvSeason}" "${tvShowOriginal}"
 								/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew0 $parseExt has been copied back." -i "normal"
-								echo "$currentDate,$currentTime,Movies,4K,$tvShowName,$tvShowEpisode1" >> "/mnt/user/Storage/Google Drive/Server Files/4K_Copier_History.csv"								
+								echo "$currentDate,$currentTime,TV Shows,4K,$tvShowName: $tvShowEpisode1" >> "/mnt/user/Storage/Google Drive/Server Files/4K_Copier_History.csv"								
 							fi
 							echo "<font color='blue'><b>""$tvShowName"" ""$tvShowEpisode1"" ""$tvShowExtension"" moved.</b></font>"
 							echo ""
