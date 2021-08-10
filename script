@@ -12,7 +12,7 @@
 
 
 #Start Debugging (set as 1 to enable basic info, 2 shows all steps and comparison info)
-debug=1
+debug=2
 #Enable testing mode to simulate the move without actually moving any files (0 = moves files, 1 = Test)
 testing=0
 #Start counting the renaming passes made
@@ -196,7 +196,7 @@ do
 								if [ $testing -eq "0" ]; then
 									mv "${movieFile}" "${movieFolder1}"
 									/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew0 $parseExt has been copied back." -i "normal"
-									echo "$currentDate,$currentTime,Movies,1080p,$parseNameNew0," >> "/mnt/user/Storage/Google Drive/Server Files/4K_Copier_History.csv"
+									echo "$currentDate,$currentTime,Movies,1080p,$parseNameNew0," >> "/mnt/user/Backups/4K_Copier_History.csv"
 								fi
 								echo "<font color='blue'><b>""$parseNameNew0"" ""$parseExt"" moved.</b></font>"
 								echo ""
@@ -326,7 +326,7 @@ do
 								if [ $testing -eq "0" ]; then
 									mv "${movieFile}" "${movieFolder1}"
 									/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew0 $parseExt has been copied back." -i "normal"
-									echo "$currentDate,$currentTime,Movies,4K,$parseNameNew0," >> "/mnt/user/Storage/Google Drive/Server Files/4K_Copier_History.csv"
+									echo "$currentDate,$currentTime,Movies,4K,$parseNameNew0," >> "/mnt/user/Backups/4K_Copier_History.csv"
 								fi
 								echo "<font color='blue'><b>""$parseNameNew0"" ""$parseExt"" moved.</b></font>"
 								echo ""
@@ -377,7 +377,7 @@ do
 				tvShowName=$(echo "$tvSeason" | cut -d'/' -f7)
 				tvShowSeason=$(echo "$tvSeason" | cut -d'/' -f8)
 				tvShowEpisode0=$(echo "$tvSeason" | cut -d'/' -f9)
-				tvShowEpisode1=$(echo "$tvShowEpisode0" | cut -d'-' -f1)
+				tvShowEpisode1=$(echo "$tvShowEpisode0" | cut -d'-' -f1 | xargs)
 				if [ $debug -ge "1" ]; then
 					echo "<font color='green'><b>Show name: </b></font>""$tvShowName"
 					echo "<font color='green'><b>Show episode: </b></font>""$tvShowEpisode1"
@@ -415,13 +415,16 @@ do
 				tvShowOriginal=$tvFolderRoot$tvShowName/$tvShowSeason/
 				tvShowExtension=$(echo "$tvSeason" | cut -d'.' -f5)
 #Check to see if the file matches a show
-				if [ -d "${tvShowOriginal}" ]; then
+				if [[ -d "${tvShowOriginal}" &&  $rCheck -eq "0" && $vCheck -eq "0" ]]; then
 					cd "${tvShowOriginal}" || exit
+					if [[ $debug -ge "2" && $rCheck -eq "0" && $vCheck -eq "0" ]]; then
+						echo "<font color='green'><b>Searching in folder: </b></font>""$tvShowOriginal"
+					fi
 #Search the folder for 4K shows
 					if [[ $debug -ge "2" && $rCheck -eq "0" && $vCheck -eq "0" ]]; then
-						echo "<font color='green'><b>Searching for: </b></font>${tvShowEpisode1}*2160p*"
+						echo "<font color='green'><b>Searching for: </b></font>*${tvShowEpisode1}*2160p*"
 					fi
-					foundNew=$(find ./ -type f \( -iname \${tvShowEpisode1}*2160p*.mkv -o -iname \${tvShowEpisode1}*2160p*.m2ts -o -iname \${tvShowEpisode1}*2160p*.mp4 \) -maxdepth 1 -print -quit)
+					foundNew=$(find -type f -iname "*${tvShowEpisode1}*2160p*" -print)
 					if [[ "$foundNew" != "" &&  $rCheck -eq "0" && $vCheck -eq "0" ]]; then
 						if [ $debug -ge "1" ]; then
 							echo "<font color='green'><b>Found matching 4K Show: </b></font>""$foundNew"
@@ -445,8 +448,8 @@ do
 							((passNumber++))
 							if [ $testing -eq "0" ]; then
 								mv "${tvSeason}" "${tvShowOriginal}"
-								/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew0 $parseExt has been copied back." -i "normal"
-								echo "$currentDate,$currentTime,TV Shows,1080p,$tvShowName: $tvShowEpisode1" >> "/mnt/user/Storage/Google Drive/Server Files/4K_Copier_History.csv"
+								/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew0 has been copied back." -i "normal"
+								echo "$currentDate,$currentTime,TV Shows,1080p,$tvShowName: $tvShowEpisode1" >> "/mnt/user/Backups/4K_Copier_History.csv"
 							fi
 							echo "<font color='blue'><b>""$tvShowName"" ""$tvShowEpisode1"" ""$tvShowExtension"" moved.</b></font>"
 							echo ""
@@ -537,11 +540,14 @@ do
 #Check to see if the file matches a show
 				if [ -d "${tvShowOriginal}" ]; then
 					cd "${tvShowOriginal}" || exit
+					if [[ $debug -ge "2" && $rCheck -eq "0" && $vCheck -eq "0" ]]; then
+						echo "<font color='green'><b>Searching in folder: </b></font>""$tvShowOriginal"
+					fi
 #Search the new folder for Low-res shows
 					if [[ $debug -ge "2" && $rCheck -eq "0" && $vCheck -eq "0" ]]; then
-						echo "<font color='green'><b>Searching for: </b></font>${tvShowEpisode1}*1080p*"
+						echo "<font color='green'><b>Searching for: </b></font>*${tvShowEpisode1}*1080p*"
 					fi
-					foundNew=$(find ./ -type f \( -iname \${tvShowEpisode1}*1080p*.mkv -o -iname \${tvShowEpisode1}*1080p*.m2ts -o -iname \${tvShowEpisode1}*1080p*.mp4 \) -maxdepth 1 -print -quit)
+					foundNew=$(find -type f -iname "*${tvShowEpisode1}*1080p*" -print)
 					if [[ "$foundNew" != "" &&  $rCheck -eq "0" && $vCheck -eq "0" ]]; then
 						if [ $debug -ge "1" ]; then
 							echo "<font color='green'><b>Found matching Low-res Show: </b></font>""$foundNew"
@@ -565,8 +571,8 @@ do
 							((passNumber++))
 							if [ $testing -eq "0" ]; then
 								mv "${tvSeason}" "${tvShowOriginal}"
-								/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew0 $parseExt has been copied back." -i "normal"
-								echo "$currentDate,$currentTime,TV Shows,4K,$tvShowName: $tvShowEpisode1" >> "/mnt/user/Storage/Google Drive/Server Files/4K_Copier_History.csv"								
+								/usr/local/emhttp/webGui/scripts/notify -e "Radarr Copy" -s "Copy Notifcation" -d "$parseNameNew0 has been copied back." -i "normal"
+								echo "$currentDate,$currentTime,TV Shows,4K,$tvShowName: $tvShowEpisode1" >> "/mnt/user/Backups/4K_Copier_History.csv"								
 							fi
 							echo "<font color='blue'><b>""$tvShowName"" ""$tvShowEpisode1"" ""$tvShowExtension"" moved.</b></font>"
 							echo ""
