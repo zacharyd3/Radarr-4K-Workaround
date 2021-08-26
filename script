@@ -30,7 +30,7 @@ currentTime=$(date +'%H:%M')
 
 #If testing is enabled, automatically switch to debug mode 2
 if [[ $testing -eq 1 && $debug -le 2 ]]; then
-	debug=2
+	debug=1
 	echo "<font color='blue'><b>Testing is enabled, enabling advanced debugging.</b></font>"
 fi
 
@@ -75,11 +75,13 @@ echo ""
 #Checks that the Recycle Bin is setup
 if [[ -d "${binLocation}" && "$testing" -eq 0 ]]; then
 	cd "${binLocation}"
-#Finds all "extra" files and deletes them before moving any videos.
-	find . -name "*.nfo" -type f -delete
-	find . -name "*.srt" -type f -delete
-	find . -name "*.ass" -type f -delete
-	find . -name "*.jpg" -type f -delete
+#Finds all "extra" files and deletes them before moving any videos. (Originally was one line, however userscripts seems to not like that so each filetype needed to be searched for individually.
+	find * -name "*.nfo" -type f -delete
+	find * -name "*.srt" -type f -delete
+	find * -name "*.ass" -type f -delete
+	find * -name "*.jpg" -type f -delete
+	find * -name "*.png" -type f -delete
+	find * -name "*.xml" -type f -delete
 	if [ $debug -ge "2" ]; then
 		echo "<font color='green'><b>Removed extra files (subtitles, images, info). </b></font>"
 	fi
@@ -122,7 +124,7 @@ do
 				parseNameOld1=$(echo "$parseNameOld1" | xargs) #xargs removes leading and trailing whitespace.
 				parseExt=$(echo "$movieFile" | cut -d'.' -f5)
 				if [ $debug -ge "1" ]; then
-					echo "<font color='green'><b>Original Movie name: </b></font>""$parseNameOld1"
+					echo "<font color='green'><b>Original Movie name: </b></font>""$parseNameOld1 | $parseNameOld0"
 				fi
 #Check if the recycled file is in use.
 				if lsof "$movieFile" > /dev/null; then
@@ -133,7 +135,7 @@ do
 					((inUse=0))
 				fi
 #Check if the recycled file is a video
-				if [[ $movieFile == *"mkv" || *"m2ts" || *"mp4" ]]; then
+				if [[ $movieFile == "*mkv" || "*m2ts" || "*mp4" ]]; then
 					((vCheck=0)) #Resets the Video Check for a new file
 				else 
 					if [[ $debug -ge "1" && "$inUse" -eq 0 ]]; then
@@ -200,6 +202,9 @@ do
 								fi
 								echo "<font color='blue'><b>""$parseNameNew0"" ""$parseExt"" moved.</b></font>"
 								echo ""
+							else
+								echo "<font color='orange'><b>File is not a video, Skipping </b></font>"
+								echo ""
 							fi
 						fi
 					fi
@@ -245,7 +250,7 @@ do
 					echo "<font color='green'><b>Original File name: </b></font>""$movieFile"
 				fi
 				parseNameOld0=$(echo "$movieFile" | cut -d'/' -f7) #<<Change this number
-				parseNameOld0=$(echo "$parseNameOld0" | cut -d'[' -f1)echo "$parseNameOld0"
+				parseNameOld0=$(echo "$parseNameOld0" | cut -d'[' -f1)
 				parseNameOld1=$(echo "$parseNameOld0" | cut -d'(' -f1) #Saves the original Movie name too (if the folder has a year it breaks things so this is needed)
 				parseNameOld0=$(echo "$parseNameOld0" | xargs) #xargs removes leading and trailing whitespace.
 				parseNameOld1=$(echo "$parseNameOld1" | xargs) #xargs removes leading and trailing whitespace.
@@ -262,7 +267,7 @@ do
 					((inUse=0))
 				fi
 #Check if the recycled file is a video
-				if [[ $movieFile == *"mkv" || *"m2ts" || *"mp4" ]]; then
+				if [[ $movieFile == "*mkv" || "*m2ts" || "*mp4" ]]; then
 					((vCheck=0)) #Resets the Video Check for a new file
 				else 
 					if [[ $debug -ge "1" && "$inUse" -eq 0 ]]; then
